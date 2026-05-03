@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where are You ?</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+     <style>
+        #map { height: 90vh; }
+     </style>
+</head>
+<body>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+    <div id="map"></div>
+
+    <script>
+
+        const map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+       maxZoom: 19,
+       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(map);
+
+      
+      function getUserCurrentLocation(){
+
+        return new Promise((resolve,reject)=>{
+
+                if("geolocation" in navigator){
+
+            navigator.geolocation.getCurrentPosition(
+                (position)=>{
+            console.log("got the position",position);
+            
+            const latitude=position.coords.latitude;
+             const longitude=position.coords.longitude;
+
+             resolve({latitude,longitude});
+
+                },
+                (err)=>{
+                    reject(err);
+                },
+
+                {enabledHighAccuracy:true}
+            )
+
+        }else{
+            alert("GeoLocation is not suppported in your browser!!!")
+        }
+        });
+
+
+      }
+
+    //    getUserCurrentLocation().then((p)=>console.log(p));
+    async function main(){
+          const userlocation=await getUserCurrentLocation();
+          L.marker([userlocation.latitude,userlocation.longitude]).addTo(map).bindPopup('You are here!!!')
+    }
+    
+    window.addEventListener('load', main);
+
+
+    </script>
+
+
+      
+    
+</body>
+</html>

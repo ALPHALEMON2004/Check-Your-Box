@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One Milion Check box</title>
+    <title>Eai , Tick karke dikhao</title>
     <style>
       :root {
         --bg-top: #23111f;
@@ -173,6 +173,37 @@
         text-shadow: 0 6px 22px rgba(255, 130, 184, 0.35);
       }
 
+      .top-actions {
+        position: relative;
+        z-index: 2;
+        width: min(980px, 96vw);
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 12px;
+      }
+
+      .location-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 227, 237, 0.35);
+        background: linear-gradient(145deg, rgba(255, 219, 234, 0.18), rgba(255, 158, 194, 0.22));
+        color: var(--text-main);
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        backdrop-filter: blur(6px);
+        box-shadow: 0 6px 16px rgba(10, 2, 7, 0.35);
+        transition: transform 0.15s ease, box-shadow 0.2s ease;
+      }
+
+      .location-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(10, 2, 7, 0.42);
+      }
+
       #container {
         position: relative;
         z-index: 1;
@@ -299,6 +330,10 @@
   <div class="cursor-glow" id="cursorGlow"></div>
   <div class="error-banner" id="errorBanner" role="alert" aria-live="polite"></div>
   <h1>Check Boxes</h1>
+
+  <div class="top-actions">
+    <a class="location-btn" href="/location.html">See Everyones Location</a>
+  </div>
 
   <div id="container">
 

@@ -19,9 +19,9 @@ async function main() {
     const io = new Server();
     io.attach(server);
         
-        // Mark the socket as authenticated only if a valid token is present.
-        
-        io.use((socket, next) => {
+    // Mark the socket as authenticated only if a valid token is present.
+
+    io.use((socket, next) => {
             const token = socket.handshake.auth.token;
 
             socket.userId = null;
