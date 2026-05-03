@@ -123,11 +123,7 @@ To prevent rapid repeated clicks, the server stores a timestamp in Redis using a
 
 ## Screenshots or Demo Link
 
-Demo video link: 
+Demo video link: https://www.youtube.com/watch?v=agqUKGBd3YA
 
-Screenshots:
 
-- 
-- 
-- 
 
