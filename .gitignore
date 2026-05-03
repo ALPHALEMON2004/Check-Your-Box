@@ -1,3 +1,7 @@
 node_modules/
 dist/
 .env/
+cert/
+drizzle.config.mjs
+drizzle/
+pnpm-lock.yaml
