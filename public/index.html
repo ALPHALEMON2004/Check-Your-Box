@@ -311,7 +311,8 @@
     <script>
      
       const container = document.getElementById('container');
-       const socket = io();
+      const authToken = localStorage.getItem('authToken');
+      const socket = authToken ? io({ auth: { token: authToken } }) : io();
       const box_count=100;
       const errorBanner = document.getElementById('errorBanner');
       let errorBannerTimer = null;
@@ -411,6 +412,11 @@
               : "Please wait for some time";
 
             showErrorBanner(message);
+
+            if (response && response.error && response.error.toLowerCase().includes('unauthorized')) {
+              localStorage.setItem('postLoginRedirect', '/index.html');
+              window.location.href = '/o/authenticate';
+            }
             return;
           }
 

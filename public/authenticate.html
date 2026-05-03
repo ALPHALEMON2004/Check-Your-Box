@@ -332,6 +332,9 @@
         if (!res.ok) {
           showError(data.message || 'Something went wrong. Please try again.');
         } else {
+          if (data.token) {
+            localStorage.setItem('authToken', data.token);
+          }
           window.location.href = data.redirect || '/';
         }
       } catch {
