@@ -300,6 +300,21 @@
 
     const params = new URLSearchParams(window.location.search);
 
+    function getRedirectTarget(fallback = '/o/authenticate') {
+      const savedRedirect = localStorage.getItem('postLoginRedirect');
+      if (savedRedirect) {
+        localStorage.removeItem('postLoginRedirect');
+        return savedRedirect;
+      }
+
+      const queryRedirect = params.get('redirect_uri');
+      if (queryRedirect) {
+        return queryRedirect;
+      }
+
+      return fallback;
+    }
+
     confirmInput.addEventListener('input', () => {
       const mismatch = confirmInput.value && confirmInput.value !== passwordInput.value;
       confirmHint.style.display = mismatch ? 'block' : 'none';
@@ -381,7 +396,7 @@
         } else {
           showSuccess('Account created! Redirecting…');
           setTimeout(() => {
-            window.location.href = `/o/authenticate${window.location.search}`;
+            window.location.href = getRedirectTarget(`/o/authenticate${window.location.search}`);
           }, 1500);
         }
       } catch {

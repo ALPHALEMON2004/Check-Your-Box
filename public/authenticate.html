@@ -284,6 +284,21 @@
 
     const params = new URLSearchParams(window.location.search);
 
+    function getRedirectTarget(fallback = '/') {
+      const savedRedirect = localStorage.getItem('postLoginRedirect');
+      if (savedRedirect) {
+        localStorage.removeItem('postLoginRedirect');
+        return savedRedirect;
+      }
+
+      const queryRedirect = params.get('redirect_uri');
+      if (queryRedirect) {
+        return queryRedirect;
+      }
+
+      return fallback;
+    }
+
     function showError(msg) {
       errorMsg.textContent = msg;
       errorMsg.style.display = 'block';
@@ -335,7 +350,7 @@
           if (data.token) {
             localStorage.setItem('authToken', data.token);
           }
-          window.location.href = data.redirect || '/';
+          window.location.href = data.redirect || getRedirectTarget('/');
         }
       } catch {
         showError('Something went wrong. Please try again.');

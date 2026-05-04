@@ -1,5 +1,5 @@
 import http from 'node:http';
-
+import {kafkaClient} from './kafka/kafka-client.js' ;
 import {Server} from 'socket.io';
 import dotenv from 'dotenv';
 import JWT from 'jsonwebtoken';
@@ -17,8 +17,34 @@ async function main() {
     const PORT = process.env.PORT || 4000;
 
     const io = new Server();
+
+    const kafkaProducer = kafkaClient.producer();
+    await kafkaProducer.connect();
+
+    const kakfaConsumer = kafkaClient.consumer({ groupId: `socket-server-${PORT}` });
+    await kakfaConsumer.connect();
+
+    await kakfaConsumer.subscribe({ topic: 'location-updates', fromBeginning: true });
+
+    kakfaConsumer.run({
+        eachMessage:async({ topic, partition, message,heartbeat }) =>{
+            const data = JSON.parse(message.value.toString());
+            console.log(`[Kafka Consumer] Received message on topic:`, {data});
+            io.emit("server:location-update",{
+                id:data.id,
+                latitude:data.latitude,
+                longitude:data.longitude
+            });
+            await heartbeat();
+        },
+    });
+
     io.attach(server);
+    //
         
+
+
+    
     // Mark the socket as authenticated only if a valid token is present.
 
     io.use((socket, next) => {
@@ -41,6 +67,9 @@ async function main() {
             }
         });
 
+    
+
+
     await subscriber.subscribe("internal-server:checkbox:changed")
     subscriber.on("message",(channel,message)=>{
         if(channel==="internal-server:checkbox:changed"){
@@ -56,7 +85,23 @@ async function main() {
     //Socket IO Handeler :-
 
     io.on('connection',(socket)=>{
-        console.log("Socket connected",{id:socket.id});    
+        console.log("Socket connected",{id:socket.id});  
+        
+          socket.on("client-location-update", async(locationData)=>{
+            const {latitude,longitude}=locationData;
+
+            console.log(`[Socket :${socket.id}]:client-location-update`,locationData);  
+
+            await kafkaProducer.send({
+                topic:"location-updates",
+                messages:[{
+                    key:socket.id,
+                    value:JSON.stringify({id:socket.id,latitude,longitude})
+                }]
+             })
+          })
+
+          
         
           socket.on("client:check:clicked",async (data,ack)=>{
                  console.log(`[Socket :${socket.id}]:clent:check:clicked`,data);
