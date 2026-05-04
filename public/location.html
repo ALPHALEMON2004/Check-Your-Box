@@ -14,8 +14,8 @@
             (function () {
                 const authToken = localStorage.getItem('authToken');
                 if (!authToken) {
-                    localStorage.setItem('postLoginRedirect', '/location.html');
-                    window.location.href = '/o/authenticate';
+                    localStorage.setItem('postLoginRedirect', '/location');
+                    window.location.href = '/o/authenticate?redirect_uri=/location';
                 }
             })();
         </script>

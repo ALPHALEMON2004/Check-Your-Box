@@ -1,10 +1,12 @@
-# One Milion Check Box
+# One Milion Check Box with Location Tracker
 
 An interactive checkbox app where users can view the board publicly, register or log in, and then use authenticated WebSocket actions to tick boxes. The project combines Express, Socket.IO, Drizzle ORM, PostgreSQL, and Redis/Valkey.
 
 ## Project Overview
 
 This project is a real-time checkbox board backed by a database and a Redis-based state layer. Users can open the page without logging in, but ticking a checkbox is protected by authentication. If a user is not signed in, the app redirects them to the login page before allowing interaction.
+
+Additionally, the app includes a **real-time location tracking feature** where authenticated users can view the live locations of all connected peers on an interactive map. The location page is protected by server-side middleware that verifies JWT tokens—unauthenticated access is automatically redirected to sign in.
 
 ## Tech Stack
 
@@ -14,8 +16,10 @@ This project is a real-time checkbox board backed by a database and a Redis-base
 - Drizzle ORM
 - PostgreSQL
 - Redis / Valkey
+- Kafka
 - JWT
 - ioredis
+- Leaflet.js (for interactive maps)
 - dotenv
 
 ## Features Implemented
@@ -29,6 +33,9 @@ This project is a real-time checkbox board backed by a database and a Redis-base
 - Rate limiting per socket connection
 - OIDC-style discovery, JWKS, and userinfo endpoints
 - Auth-gated checkbox interaction
+- **Auth-protected location page** with server-side middleware
+- **Real-time location tracking** via Kafka and WebSocket broadcasts
+- **Interactive map** (Leaflet.js) for viewing peer locations
 
 ## How to Run Locally
 
@@ -120,6 +127,38 @@ To prevent rapid repeated clicks, the server stores a timestamp in Redis using a
 - Each socket can trigger a checkbox update only once every 4 seconds.
 - If a click arrives too soon, the server returns an error and rejects the update.
 - This keeps the UI stable and reduces spammy updates.
+
+## Location Page Authentication Flow
+
+The location page is protected using **server-side middleware** similar to the checkbox interaction pattern:
+
+1. A user clicks **"See Everyone's Location"** on the main page.
+2. The browser checks if an `authToken` exists in localStorage.
+3. If no token exists, the user is redirected to the sign-in page with a redirect parameter.
+4. After successful login, the token is stored in both localStorage and a secure HTTP cookie.
+5. The user is redirected back to the location page (`/location`).
+6. The Express server middleware (`requireLocationAuth`) validates the JWT from the request.
+7. If the token is valid, the user sees the Leaflet.js map.
+8. If the token is invalid or missing, the user is automatically redirected to sign in.
+
+## Real-Time Location Tracking Flow
+
+1. When authenticated, the user's browser requests geolocation every 10 seconds.
+2. The browser emits the coordinates via Socket.IO: `client-location-update`.
+3. The server receives the location and publishes it to a **Kafka topic** (`location-updates`).
+4. A **Kafka consumer** running in the main server listens for location updates.
+5. On each update, the server broadcasts `server:location-update` to all connected clients via Socket.IO.
+6. The client-side map (Leaflet.js) receives the update and displays/updates markers for each peer.
+7. The user's own location is displayed with a distinct marker labeled **"You are here!!!"**.
+8. All peer locations are displayed with markers labeled by their socket IDs.
+
+## Kafka Integration
+
+Kafka is used to decouple location updates and ensure real-time broadcasting across all server instances:
+
+- **Producer:** Publishes location data to the `location-updates` topic.
+- **Consumer:** Subscribes to the topic and broadcasts updates to all Socket.IO clients.
+- This architecture supports horizontal scaling—multiple server instances can consume from the same Kafka topic.
 
 ## Screenshots or Demo Link
 

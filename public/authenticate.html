@@ -299,6 +299,10 @@
       return fallback;
     }
 
+    function setAuthCookie(token) {
+      document.cookie = `authToken=${encodeURIComponent(token)}; path=/; SameSite=Lax; max-age=3600`;
+    }
+
     function showError(msg) {
       errorMsg.textContent = msg;
       errorMsg.style.display = 'block';
@@ -349,6 +353,7 @@
         } else {
           if (data.token) {
             localStorage.setItem('authToken', data.token);
+            setAuthCookie(data.token);
           }
           window.location.href = data.redirect || getRedirectTarget('/');
         }

@@ -3,6 +3,7 @@ import express from 'express';
 import {redis} from '../redis-connection.js';
 import authRoutes from './routes/auth.routes.js';
 import oidcRoutes from './routes/oidc.routes.js';
+import { requireLocationAuth } from './middlewares/auth.middleware.js';
 
 
 
@@ -21,8 +22,11 @@ export const RateLimitingMap=new Map();
 export function createApp() {    
         
 const app = express();
-app.use(express.static(path.resolve("./public")))
 app.use(express.json());
+app.get(["/location", "/location.html"], requireLocationAuth, (req, res) => {
+    return res.sendFile(path.resolve("./public/location.html"));
+});
+app.use(express.static(path.resolve("./public")))
 
 app.get('/health',(req,res)=>{
     return res.status(200).json({helthy:true,message:"Server is healthy"});
